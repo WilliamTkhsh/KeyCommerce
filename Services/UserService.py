@@ -1,6 +1,6 @@
 from Models.UserModel import User
 from flask import request, jsonify
-from Schemas import UserSchema
+from Schemas.UserSchema import UserSchema
 from database import db
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt
 
@@ -11,13 +11,10 @@ class UserService:
             user = UserService.get_user_by_email(email = json_data.get('email'))
             
             if user is not None:
-                pass
-            else:
-                return jsonify({"error" : "Usuario ja existente"})
+                return jsonify({"error" : "Usuario ja existente"}), 409
             
             new_user = User(
-                email = json_data.get('email'),
-                password = json_data.get('password')
+                email = json_data.get('email')
             )
 
             new_user.set_password(password = json_data.get('password'))
@@ -25,16 +22,16 @@ class UserService:
             try:
                 new_user.save()
                 result = UserSchema().dump(new_user)
-                return jsonify({"message": "Usuario criado com sucesso!", "data": result.data}), 201
-            except:
-                return jsonify({"message": "Nao foi possivel criar usuario"}), 500
+                return jsonify({"message": "Usuario criado com sucesso!", "data": result}), 201
+            except Exception as e:
+                return jsonify({"message": "Nao foi possivel criar usuario: " + str(e), "data": {}}), 500
 
     def login_user():
         data = request.get_json()
         user = UserService.get_user_by_email(username = data.get('email'))
         
         if user is None:
-            return jsonify({"error": "Email ainda nao cadastrado"})
+            return jsonify({"error": "Email ainda nao cadastrado"}), 400
         
         if user and (user.check_password(password = data.get('password'))):
             access_token = create_access_token(identity=user.username)
@@ -72,16 +69,16 @@ class UserService:
 
         user = User.query.get(id)
 
-        if not User:
+        if not user:
             return jsonify({"message": "Usuario nao existe"})
         
         try:
             user.email = email
             db.session.commit()
-            result = UserSchema.dump(user)
-            return jsonify({"message": "Usuario alterado com sucesso", "data": result.data}), 201            
-        except:
-            return jsonify({"message": "Failed to update user"}), 500
+            result = UserSchema().dump(user)
+            return jsonify({"message": "Usuario alterado com sucesso", "data": result}), 201            
+        except Exception as e:
+            return jsonify({"message": "Failed to update user" + str(e), "data": {}}), 500
 
     def update_user_password(id):
         data = request.get_json()
@@ -92,10 +89,10 @@ class UserService:
         try:
             user.password = password
             db.session.commit()
-            result = UserSchema.dump(user)
-            return jsonify({"message": "Senha alterada com sucesso", "data": result.data}), 201
-        except:
-            return jsonify({"message": "Failed to update password"}), 500
+            result = UserSchema().dump(user)
+            return jsonify({"message": "Senha alterada com sucesso", "data": result}), 201
+        except Exception as e:
+            return jsonify({"message": "Failed to update password"+ str(e), "data": {}}), 500
 
     def delete_user(id):
         user = User.query.get(id)
@@ -105,18 +102,18 @@ class UserService:
         try:
             db.session.delete(user)
             db.session.commit()
-            result = UserSchema.dump(user)
-            return jsonify({"message": "Usuario deletado com sucesso", "data": result.data}), 201
-        except:
-            return jsonify({"message": "Failed to delete User"}), 500
+            result = UserSchema().dump(user)
+            return jsonify({"message": "Usuario deletado com sucesso", "data": result}), 201
+        except Exception as e:
+            return jsonify({"message": "Failed to delete User" + str(e), "data": {}}), 500
 
     def get_user_by_id(id):
         user = User.query.get(id)
         if user:
-            result = UserSchema.dump(user)
-            return jsonify({"message": "Usuario encontrado", "data": result.data}), 201
+            result = UserSchema().dump(user)
+            return jsonify({"message": "Usuario encontrado", "data": result}), 201
         
-        return jsonify({"message": "User doesnt exist in database"}), 404
+        return jsonify({"message": "User doesnt exist in database", "data": {}}), 404
 
     def get_user_by_email(email):
-        return User.get_user_by_username(email = email)
+        return User.get_user_by_email(email = email)

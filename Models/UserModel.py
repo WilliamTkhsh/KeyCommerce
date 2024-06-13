@@ -7,7 +7,7 @@ def generate_uuid():
 
 class User(db.Model):
     __tablename__ = "KC_Users"
-    id = db.Column(db.Integer, primary_key= True, default=str(generate_uuid))
+    id = db.Column(db.String(), primary_key= True, default=generate_uuid())
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.Text())
 
@@ -15,7 +15,7 @@ class User(db.Model):
         return f"<User {self.email}"
     
     def set_password(self, password):
-        self.password = generate_password_hash(self.password, password)
+        self.password = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
