@@ -2,7 +2,7 @@ from Models.UserModel import User
 from flask import request, jsonify
 from Schemas.UserSchema import UserSchema
 from database import db
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt
+from flask_jwt_extended import create_access_token, create_refresh_token
 
 class UserService:
     def create_user():

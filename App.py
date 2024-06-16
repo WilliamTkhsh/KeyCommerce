@@ -1,5 +1,8 @@
 from flask import Flask, jsonify
 from Controller.user import user_route
+from Controller.keycaps import keycaps_route
+from Controller.switches import switch_route
+from Controller.boards import board_route
 from flask_swagger_ui import get_swaggerui_blueprint
 from dotenv import load_dotenv
 import os
@@ -39,6 +42,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{db_user}:{db_password}@localho
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.register_blueprint(user_route, url_prefix="/users")
+app.register_blueprint(switch_route, url_prefix="/switches")
+app.register_blueprint(keycaps_route, url_prefix="/keycaps")
+app.register_blueprint(board_route, url_prefix="/boards")
 
 db.init_app(app)
 
