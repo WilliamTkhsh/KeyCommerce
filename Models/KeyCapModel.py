@@ -7,6 +7,7 @@ class KeyCap(db.Model):
     size = db.Column(db.String(10))
     price = db.Column(db.Numeric(precision=10, scale=2))
     amount = db.Column(db.Integer)
+    keyboard = db.relationship('Keyboard', backref='keycap', lazy=True)    
 
     def save(self):
         db.session.add(self)

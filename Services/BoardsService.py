@@ -18,7 +18,15 @@ class BoardsService:
             return jsonify({"message": "Board registrado com sucesso!", "data": result}), 201
         except Exception as e:
             return jsonify({"message": "Nao foi possivel registrar board: " + str(e), "data": {}}), 500
-
+        
+    def get_by_id(id):
+        board = Board.query.get(id)
+        if board:
+            result = BoardSchema().dump(board)
+            return jsonify({"message": "Board encontrado", "data": result}), 201
+        
+        return jsonify({"message": "Board doesnt exist in database", "data": {}}), 404
+    
     def get_paginated_boards():
         page = request.args.get('page', default=1, type=int)
         per_page = request.args.get('per_page', default=10, type=int)

@@ -19,6 +19,14 @@ class KeyCapsService:
         except Exception as e:
             return jsonify({"message": "Nao foi possivel registrar keycap: " + str(e), "data": {}}), 500
 
+    def get_by_id(id):
+        keycap = KeyCap.query.get(id)
+        if keycap:
+            result = KeyCapSchema().dump(keycap)
+            return jsonify({"message": "KeyCap encontrado", "data": result}), 201
+        
+        return jsonify({"message": "KeyCap doesnt exist in database", "data": {}}), 404
+    
     def get_paginated_keycaps():
         page = request.args.get('page', default=1, type=int)
         per_page = request.args.get('per_page', default=10, type=int)

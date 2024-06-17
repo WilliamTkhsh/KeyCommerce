@@ -3,6 +3,7 @@ from Controller.user import user_route
 from Controller.keycaps import keycaps_route
 from Controller.switches import switch_route
 from Controller.boards import board_route
+from Controller.keyboard import keyboard_route
 from flask_swagger_ui import get_swaggerui_blueprint
 from dotenv import load_dotenv
 import os
@@ -45,6 +46,7 @@ app.register_blueprint(user_route, url_prefix="/users")
 app.register_blueprint(switch_route, url_prefix="/switches")
 app.register_blueprint(keycaps_route, url_prefix="/keycaps")
 app.register_blueprint(board_route, url_prefix="/boards")
+app.register_blueprint(keyboard_route, url_prefix="/keyboard")
 
 db.init_app(app)
 

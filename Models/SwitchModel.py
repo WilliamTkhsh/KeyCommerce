@@ -8,6 +8,7 @@ class Switch(db.Model):
     type = db.Column(db.String(200))
     sound = db.Column(db.Integer)
     amount = db.Column(db.Integer)
+    keyboard = db.relationship('Keyboard', backref='switch', lazy=True)
 
     def save(self):
         db.session.add(self)

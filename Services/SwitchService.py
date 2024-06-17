@@ -19,6 +19,14 @@ class SwitchService:
             return jsonify({"message": "Switch registrado com sucesso!", "data": result}), 201
         except Exception as e:
             return jsonify({"message": "Nao foi possivel registrar switch: " + str(e), "data": {}}), 500
+        
+    def get_by_id(id):
+        switch = Switch.query.get(id)
+        if switch:
+            result = SwitchSchema().dump(switch)
+            return jsonify({"message": "Switch encontrado", "data": result}), 201
+        
+        return jsonify({"message": "Switch doesnt exist in database", "data": {}}), 404
 
     def get_paginated_switches():
         page = request.args.get('page', default=1, type=int)
