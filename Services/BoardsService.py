@@ -12,6 +12,8 @@ class BoardsService:
             amount = board.get('amount')
         )
 
+        new_board.set_size_name()
+
         try:
             new_board.save()
             result = BoardSchema().dump(new_board)

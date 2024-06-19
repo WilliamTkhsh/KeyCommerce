@@ -11,7 +11,10 @@ class KeyBoardService:
         switch = Switch.query.get(keyboard.get('switch_id'))
         keycap = KeyCap.query.get(keyboard.get('keycap_id'))
         board = Board.query.get(keyboard.get('board_id'))
-            
+
+        if switch.amount == 0 or keycap.amount == 0 or board.amount == 0:
+            return jsonify({"message": f"Unable to create keyboard: {switch.name} amount is {switch.amount} | {keycap.name} amount is {keycap.amount} | {board.name} amount is {board.amount}", "data": {}}), 500
+
         new_keyboard = Keyboard(
             switch_id=switch.id,
             keycap_id=keycap.id,
@@ -42,9 +45,9 @@ class KeyBoardService:
         })
     
     def update_keyboard(id, keyboard):
-        switch = Switch.query.get(id=keyboard.get('switch_id'))
-        keycap = KeyCap.query.get(id=keyboard.get('keycap_id'))
-        board = Board.query.get(id=keyboard.get('board_id'))     
+        switch = Switch.query.get(keyboard.get('switch_id'))
+        keycap = KeyCap.query.get(keyboard.get('keycap_id'))
+        board = Board.query.get(keyboard.get('board_id'))     
         target_keyboard = Keyboard.query.get(id)
 
         if not target_keyboard:
@@ -68,10 +71,9 @@ class KeyBoardService:
         try:
             db.session.delete(keyboard)
             db.session.commit()
-            result = KeyboardSchema().dump(keyboard)
-            return jsonify({"message": "Keyboard deletado com sucesso", "data": result}), 201
+            return jsonify({"message": "Keyboard deletado com sucesso", "data": "{id}"}), 201
         except Exception as e:
             return jsonify({"message": "Failed to delete Keyboard" + str(e), "data": {}}), 500
         
     def set_price(switch, keycap, board):
-        return switch.unit_price + keycap.price + board.price
+        return switch.unit_price*board.get_key_amount() + keycap.price + board.price
