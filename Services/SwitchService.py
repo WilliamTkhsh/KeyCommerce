@@ -2,9 +2,12 @@ from flask import request, jsonify
 from database import db
 from Models.SwitchModel import Switch
 from Schemas.SwitchSchema import SwitchSchema
+from Services.UserService import UserService
 
 class SwitchService:
-    def register_switch(switch):        
+    def register_switch(switch):
+        if not UserService.user_is_admin():
+            return jsonify({"message": "User unauthorized to perform this method"}), 401 
         new_switch = Switch(
             name = switch.get('name'),
             unit_price = switch.get('unit_price'),
@@ -43,6 +46,8 @@ class SwitchService:
         })
     
     def update_switch(id, switch):
+        if not UserService.user_is_admin():
+            return jsonify({"message": "User unauthorized to perform this method"}), 401 
         name = switch.get('name')
         unit_price = switch.get('unit_price')
         type = switch.get('type')
@@ -67,6 +72,8 @@ class SwitchService:
             return jsonify({"message": "Failed to update Switch" + str(e), "data": {}}), 500
 
     def delete_switch(id):
+        if not UserService.user_is_admin():
+            return jsonify({"message": "User unauthorized to perform this method"}), 401    
         switch = Switch.query.get(id)
         if not switch:
             return jsonify({"message": "Switch nao existe"}), 404

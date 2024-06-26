@@ -2,9 +2,12 @@ from flask import request, jsonify
 from database import db
 from Models.BoardModel import Board
 from Schemas.BoardSchema import BoardSchema
+from Services.UserService import UserService
 
 class BoardsService:
-    def register_board(board):        
+    def register_board(board):       
+        if not UserService.user_is_admin():
+            return jsonify({"message": "User unauthorized to perform this method"}), 401          
         new_board = Board(
             name = board.get('name'),
             size = board.get('size'),
@@ -44,6 +47,8 @@ class BoardsService:
         })
     
     def update_board(id, board):
+        if not UserService.user_is_admin():
+            return jsonify({"message": "User unauthorized to perform this method"}), 401         
         name = board.get('name')
         size = board.get('size')
         price = board.get('price')
@@ -65,6 +70,8 @@ class BoardsService:
             return jsonify({"message": "Failed to update Board" + str(e), "data": {}}), 500
 
     def delete_board(id):
+        if not UserService.user_is_admin():
+            return jsonify({"message": "User unauthorized to perform this method"}), 401         
         board = Board.query.get(id)
         if not board:
             return jsonify({"message": "Board nao existe"}), 404

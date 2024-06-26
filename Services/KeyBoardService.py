@@ -9,8 +9,16 @@ from Schemas.KeyboardSchema import KeyboardSchema
 class KeyBoardService:
     def register_keyboard(keyboard):
         switch = Switch.query.get(keyboard.get('switch_id'))
+        if not switch:
+            return jsonify({"message": f"Unable to create keyboard: Switch of id {keyboard.get('switch_id')} doesnt exist", "data": {}}), 500
+        
         keycap = KeyCap.query.get(keyboard.get('keycap_id'))
+        if not keycap:
+            return jsonify({"message": f"Unable to create keyboard: KeyCap of id {keyboard.get('keycap_id')} doesnt exist", "data": {}}), 500        
+        
         board = Board.query.get(keyboard.get('board_id'))
+        if not board:
+            return jsonify({"message": f"Unable to create keyboard: Board of id {keyboard.get('board_id')} doesnt exist", "data": {}}), 500        
 
         if switch.amount == 0 or keycap.amount == 0 or board.amount == 0:
             return jsonify({"message": f"Unable to create keyboard: {switch.name} amount is {switch.amount} | {keycap.name} amount is {keycap.amount} | {board.name} amount is {board.amount}", "data": {}}), 500

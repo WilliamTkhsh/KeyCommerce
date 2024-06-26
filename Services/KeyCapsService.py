@@ -2,9 +2,12 @@ from flask import request, jsonify
 from database import db
 from Models.KeyCapModel import KeyCap
 from Schemas.KeyCapSchema import KeyCapSchema
+from Services.UserService import UserService
 
 class KeyCapsService:
     def register_keycap(keycap):        
+        if not UserService.user_is_admin():
+            return jsonify({"message": "User unauthorized to perform this method"}), 401         
         new_keycap = KeyCap(
             name = keycap.get('name'),
             size = keycap.get('size'),
@@ -42,6 +45,8 @@ class KeyCapsService:
         })
     
     def update_keycap(id, keycap):
+        if not UserService.user_is_admin():
+            return jsonify({"message": "User unauthorized to perform this method"}), 401         
         name = keycap.get('name')
         size = keycap.get('size')
         price = keycap.get('price')
@@ -63,6 +68,8 @@ class KeyCapsService:
             return jsonify({"message": "Failed to update KeyCap" + str(e), "data": {}}), 500
 
     def delete_keycap(id):
+        if not UserService.user_is_admin():
+            return jsonify({"message": "User unauthorized to perform this method"}), 401         
         keycap = KeyCap.query.get(id)
         if not keycap:
             return jsonify({"message": "KeyCap nao existe"}), 404

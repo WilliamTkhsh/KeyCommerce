@@ -1,10 +1,11 @@
-from flask import Flask, jsonify
+from flask import Flask
 from Controller.user import user_route
 from Controller.keycaps import keycaps_route
 from Controller.switches import switch_route
 from Controller.boards import board_route
 from Controller.keyboard import keyboard_route
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 import os
 from database import db
@@ -41,26 +42,21 @@ db_name = os.environ['DB_NAME']
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{db_user}:{db_password}@localhost:3306/{db_name}".format(db_user=db_user, db_password=db_password, db_name=db_name)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET']
+
+jwt = JWTManager(app)
+@jwt.additional_claims_loader
+def make_additional_claims(identity):
+    if identity == os.environ['ADMIN_ID']:
+        return {"is_staff": True}
+    return {"is_staff": False}
 
 app.register_blueprint(user_route, url_prefix="/users")
 app.register_blueprint(switch_route, url_prefix="/switches")
 app.register_blueprint(keycaps_route, url_prefix="/keycaps")
 app.register_blueprint(board_route, url_prefix="/boards")
 app.register_blueprint(keyboard_route, url_prefix="/keyboard")
-
 db.init_app(app)
-
-#@jwt.expired_token_loader
-def expired_token_callback(jwt_header, jwt_data):
-    return jsonify({"message": "Token has expired", "error": "token_expired"}), 401
-
-#@jwt.invalid_token_loader
-def invalid_token_callback(error):
-    return jsonify({"message":"Signature verification failed", "error": "invalid_token"}), 401
-
-#@jwt.unauthorized_loader
-def missing_token_callback(error):
-    return jsonify({"message": "Missing token", "error": "authorization_header"}), 401
 
 @app.route('/')
 def Index():

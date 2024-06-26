@@ -1,12 +1,14 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from Services.SwitchService import SwitchService
+from flask_jwt_extended import jwt_required
 
 
 switch_route = Blueprint("switches", __name__)
 
 # CREATE
 @switch_route.route('/create', methods=['POST'])
+@jwt_required()
 @cross_origin()
 def create():
     json_data = request.get_json()
@@ -20,6 +22,7 @@ def get_paginated():
 
 # UPDATE
 @switch_route.route('/<id>', methods=['PUT'])
+@jwt_required()
 @cross_origin()
 def update(id):
     json_data = request.get_json()    
@@ -27,6 +30,7 @@ def update(id):
 
 # DELETE
 @switch_route.route('/<id>', methods=['DELETE'])
+@jwt_required()
 @cross_origin()
 def delete(id):
     return SwitchService.delete_switch(id)

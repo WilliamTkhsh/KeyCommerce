@@ -1,15 +1,17 @@
 from database import db
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 def generate_uuid():
     return uuid4()
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "KC_Users"
     id = db.Column(db.String(), primary_key= True, default=generate_uuid())
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.Text())
+    #order = db.relationship('Order', backref='user', lazy=True)    
 
     def __repr__(self):
         return f"<User {self.email}"
