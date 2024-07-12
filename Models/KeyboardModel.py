@@ -7,6 +7,7 @@ class Keyboard(db.Model):
     board_id = db.Column(db.Integer, db.ForeignKey('KC_Boards.id'))
     keycap_id = db.Column(db.Integer, db.ForeignKey('KC_KeyCaps.id'))
     price = db.Column(db.Numeric(precision=10, scale=2))
+    order = db.relationship('Order', backref='keyboard', lazy=True)    
 
     def set_price(self):
         return self.switch.unit_price + self.keycap.price + self.board.price

@@ -1,8 +1,12 @@
 from flask import request, jsonify
+from flask_jwt_extended import get_jwt_identity
 from database import db
 from Models.OrderModel import Order
 from Models.KeyboardModel import Keyboard
+from Models.UserModel import User
+from datetime import datetime
 from Schemas.OrderSchema import OrderSchema
+from Enums.OrderStatus import OrderStatus
 
 class OrdersService:
     def register_order(order):
@@ -13,10 +17,11 @@ class OrdersService:
 
         new_order = Order(
             keyboard_id = keyboard.id,
-            total_price = order.get('total_price'),
-            payment_type = order.get('payment_type'),
-            ship_method = order.get('ship_method'),
+            user_id = get_jwt_identity(),
+            total_price = keyboard.price,
         )
+
+        new_order.status = OrderStatus.CREATED.value
 
         try:
             new_order.save()
@@ -48,20 +53,26 @@ class OrdersService:
         })
     
     def update_order(id, order):
-        name = order.get('name')
-        size = order.get('size')
-        price = order.get('price')
-        amount = order.get('amount')        
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        keyboard = Keyboard.query.get(order.get('keyboard_id'))
+
+        if not keyboard:
+            return jsonify({"message": f"Keyboard of id {order.get('keyboard_id')} doesnt exist", "data": {}}), 500
+        total_price = keyboard.price
+
         target_order = Order.query.get(id)
+
+        if target_order.user_id != user.id:
+            return jsonify({"message": f"User is not owner of this order", "data": {}}), 500
 
         if not target_order:
             return jsonify({"message": "Order nao existe na base"})
         
         try:
-            target_order.name = name
-            target_order.size = size
-            target_order.price = price
-            target_order.amount = amount
+            target_order.keyboard = keyboard
+            target_order.total_price = total_price
+            target_order.date_updated = datetime.now()
             db.session.commit()
             result = OrderSchema().dump(target_order)
             return jsonify({"message": "Order alterado com sucesso", "data": result}), 201            
