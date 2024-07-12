@@ -35,3 +35,9 @@ def update(id):
 @cross_origin()
 def delete(id):
     return OrdersService.delete_order(id)
+
+@order_route.route('/cancel/<id>', methods=['PATCH'], endpoint = "cancel_order")
+@jwt_required()
+@cross_origin()
+def cancel_order(id):
+    return OrdersService.cancel_order(id)
