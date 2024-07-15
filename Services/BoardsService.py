@@ -3,6 +3,7 @@ from database import db
 from Models.BoardModel import Board
 from Schemas.BoardSchema import BoardSchema
 from Services.UserService import UserService
+from Services.S3Service import S3Service
 
 class BoardsService:
     def register_board(board):       
@@ -18,6 +19,8 @@ class BoardsService:
         new_board.set_size_name()
 
         try:
+            s3_url = S3Service.upload_file(board.get('file'), '/keycap', board.get('file_name'))
+            new_board.image_url = s3_url                  
             new_board.save()
             result = BoardSchema().dump(new_board)
             return jsonify({"message": "Board registrado com sucesso!", "data": result}), 201

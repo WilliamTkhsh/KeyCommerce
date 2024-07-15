@@ -3,6 +3,7 @@ from database import db
 from Models.SwitchModel import Switch
 from Schemas.SwitchSchema import SwitchSchema
 from Services.UserService import UserService
+from Services.S3Service import S3Service
 
 class SwitchService:
     def register_switch(switch):
@@ -17,6 +18,8 @@ class SwitchService:
         )
 
         try:
+            s3_url = S3Service.upload_file(switch.get('file'), '/switch',switch.get('file_name'))
+            new_switch.image_url = s3_url
             new_switch.save()
             result = SwitchSchema().dump(new_switch)
             return jsonify({"message": "Switch registrado com sucesso!", "data": result}), 201

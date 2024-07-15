@@ -7,7 +7,8 @@ class Board(db.Model):
     size_name = db.Column(db.String(50))
     size = db.Column(db.String(10))  
     price = db.Column(db.Numeric(precision=10, scale=2))
-    amount = db.Column(db.Integer)    
+    amount = db.Column(db.Integer)   
+    image_url = db.Column(db.String(100)) 
 
     keyboard = db.relationship('Keyboard', backref='board', lazy=True)
 

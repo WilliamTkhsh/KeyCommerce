@@ -3,6 +3,7 @@ from database import db
 from Models.KeyCapModel import KeyCap
 from Schemas.KeyCapSchema import KeyCapSchema
 from Services.UserService import UserService
+from Services.S3Service import S3Service
 
 class KeyCapsService:
     def register_keycap(keycap):        
@@ -16,6 +17,8 @@ class KeyCapsService:
         )
 
         try:
+            s3_url = S3Service.upload_file(keycap.get('file'), '/keycap', keycap.get('file_name'))
+            new_keycap.image_url = s3_url            
             new_keycap.save()
             result = KeyCapSchema().dump(new_keycap)
             return jsonify({"message": "KeyCap registrado com sucesso!", "data": result}), 201
